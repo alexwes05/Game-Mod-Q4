@@ -124,7 +124,7 @@ bool idGameEdit::ParseSpawnArgsToRenderLight( const idDict *args, renderLight_t 
 		if (!args->GetVector( "light_radius", "320 320 320", renderLight->lightRadius ) ) {
 			float radius;
 
-			args->GetFloat( "light", "320", radius );
+			args->GetFloat( "light", "1000", radius ); //CHANGE
 // RAVEN END
 			renderLight->lightRadius[0] = renderLight->lightRadius[1] = renderLight->lightRadius[2] = radius;
 		}

@@ -94,7 +94,7 @@ float idPhysics_Player::CmdScale( const usercmd_t &cmd ) const {
 	}
 
 	total = idMath::Sqrt( (float) forwardmove * forwardmove + rightmove * rightmove + upmove * upmove );
-	scale = (float) playerSpeed * max / ( 127.0f * total );
+	scale = (float) playerSpeed* 5 * max / ( 127.0f * total ); //changed   ALEXWESOLOWSKI
 
 	return scale;
 }
