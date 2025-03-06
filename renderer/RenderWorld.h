@@ -99,7 +99,7 @@ enum {
 	RD_MAX_STATS
 };
 
-typedef bool(*deferredEntityCallback_t)( renderEntity_s *, const renderView_s * );
+typedef bool(*deferredEntityCallback_t)( renderEntity_s		 *, const renderView_s * );
 
 
 // RAVEN BEGIN
