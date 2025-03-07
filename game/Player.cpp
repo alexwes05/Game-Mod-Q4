@@ -166,6 +166,8 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_SetExtraProjPassEntity,idPlayer::Event_SetExtraProjPassEntity )
 //MCG: direct damage
 	EVENT( EV_Player_DamageEffect,			idPlayer::Event_DamageEffect )
+//Alex Wesolowski Edit?
+
 END_CLASS
 
 // RAVEN BEGIN
@@ -206,6 +208,7 @@ void idInventory::Clear( void ) {
 	armor				= 0;
 	maxarmor			= 0;
 	secretAreasDiscovered = 0;
+	money = 0;
 
 	memset( ammo, 0, sizeof( ammo ) );
 
@@ -274,6 +277,9 @@ void idInventory::GetPersistantData( idDict &dict ) {
 
 	// armor
 	dict.SetInt( "armor", armor );
+
+	//money : Alex Wesolowski
+	dict.SetInt("money", money);
 
 	// ammo
 	for( i = 0; i < MAX_AMMOTYPES; i++ ) {
@@ -11174,15 +11180,27 @@ void idPlayer::Event_AllowNewObjectives ( void ) {
 	showNewObjectives = true;
 }
 
-// mekberg: added sethealth
+
 /*
+* ALEX WESOLOWSKI!
 =============
-idPlayer::Event_SetHealth
+idPlayer::Event_SetMoney
 =============
 */
-void idPlayer::Event_SetHealth( float newHealth ) {
-	health = idMath::ClampInt( 1 , inventory.maxHealth, newHealth );
+/*
+void idPlayer::Event_ChangeMoney (int amount) {
+	money += amount;
+	gameLocal.Printf("Player's cahnged to: %d\n", money);
+	//if(amount < money) maybe for purchasing or I can make another function
 }
+
+void idPlayer::Event_SetMoney(int setAmount) {
+	money = setAmount;
+	gameLocal.Printf("Player's money set to: %d\n", money);
+	//if(amount < money) maybe for purchasing or I can make another function
+}
+*/
+
 /*
 =============
 idPlayer::Event_SetArmor
@@ -11190,6 +11208,16 @@ idPlayer::Event_SetArmor
 */
 void idPlayer::Event_SetArmor( float newArmor ) {
 	inventory.armor = idMath::ClampInt( 0 , inventory.maxarmor, newArmor );
+}
+
+// mekberg: added sethealth
+/*
+=============
+idPlayer::Event_SetHealth
+=============
+*/
+void idPlayer::Event_SetHealth(float newHealth) {
+	health = idMath::ClampInt(1, inventory.maxHealth, newHealth);
 }
 
 /*
@@ -13359,6 +13387,7 @@ void idPlayer::GetDebugInfo ( debugInfoProc_t proc, void* userData ) {
 	proc ( "idPlayer", "inventory.armor",		va("%d", inventory.armor ), userData );
 	proc ( "idPlayer", "inventory.weapons",		va("%d", inventory.weapons ), userData );
 	proc ( "idPlayer", "inventory.powerups",	va("%d", inventory.powerups ), userData );
+	//proc("idPlayer", "inventory.money", va("%d", inventory.powerups), userData); //Alex Wesolowski
 }
 
 

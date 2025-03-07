@@ -28,6 +28,9 @@ extern const idEventDef EV_Player_SetArmor;
 extern const idEventDef EV_Player_SetExtraProjPassEntity;
 extern const idEventDef EV_Player_DamageEffect;
 
+extern const idEventDef EV_Player_SetMoney;
+extern const idEventDef EV_Player_ChangeMoney;
+
 const float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
 const int	LAND_DEFLECT_TIME			= 150;
 const int	LAND_RETURN_TIME			= 300;
@@ -207,6 +210,8 @@ public:
 	int						clip[ MAX_WEAPONS ];
 	int						powerupEndTime[ POWERUP_MAX ];
 	int						weaponMods[ MAX_WEAPONS ];
+	//Alex Wesolowski
+	int						money;
 
  	// multiplayer
  	int						ammoPredictTime;
@@ -1093,6 +1098,11 @@ private:
 	// mekberg:	added sethealth
 	void					Event_SetHealth					( float newHealth );
 	void					Event_SetArmor					( float newArmor );
+
+	//Alex Wesolowski
+	void					Event_ChangeMoney				(int money);
+	void					Event_SetMoney					(int newMoney);
+
 
 	void					Event_SetExtraProjPassEntity( idEntity* _extraProjPassEntity );
 	void					Event_DamageEffect			( const char *damageDefName, idEntity* _damageFromEnt  );

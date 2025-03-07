@@ -3028,6 +3028,22 @@ void Cmd_Locate_f(const idCmdArgs& args) {
 	gameLocal.Printf("location: (%f, %f, %f)", origin.x, origin.y, origin.z);
 }
 
+
+//ALEX WESOLOWSKI COMMAND
+void Cmd_Money_f(const idCmdArgs& args) {
+	//char* msg;
+	idPlayer* player;
+	int money;
+	//idVec3 origin;
+	player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		gameLocal.Printf("Error");
+		return;
+	}
+	money = player->inventory.money;
+	gameLocal.Printf("Money I have currently: %d\n", money);
+}
+
 // RAVEN END
 
 void Cmd_CheckSave_f( const idCmdArgs &args );
@@ -3249,6 +3265,8 @@ void idGameLocal::InitConsoleCommands( void ) {
 
 	//ALEX WESOLOWSKI
 	cmdSystem->AddCommand("locate",					Cmd_Locate_f,				CMD_FL_GAME,				"Prints the users location to the screen");
+
+	cmdSystem->AddCommand("money",					Cmd_Money_f,				CMD_FL_GAME,				"Prints money");
 
 }
 

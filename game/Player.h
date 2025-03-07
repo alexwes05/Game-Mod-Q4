@@ -207,6 +207,7 @@ public:
 	int						clip[ MAX_WEAPONS ];
 	int						powerupEndTime[ POWERUP_MAX ];
 	int						weaponMods[ MAX_WEAPONS ];
+	int						money; //Alex Wesolowski
 
  	// multiplayer
  	int						ammoPredictTime;
@@ -1099,6 +1100,10 @@ private:
 	// mekberg:	added sethealth
 	void					Event_SetHealth					( float newHealth );
 	void					Event_SetArmor					( float newArmor );
+	
+	// alex wesolowski : money
+	void					Event_ChangeMoney				( int amount) ;
+	void					Event_SetMoney					( int setAmount);
 
 	void					Event_SetExtraProjPassEntity( idEntity* _extraProjPassEntity );
 	void					Event_DamageEffect			( const char *damageDefName, idEntity* _damageFromEnt  );
