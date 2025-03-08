@@ -17,7 +17,7 @@ AI.cpp
 #include "../Projectile.h"
 #include "../spawner.h"
 #include "AI_Tactical.h"
-#include "../Player.h"
+//#include "../Player.h"
 
 const char* aiTalkMessageString [ ] = {
 	"None",
@@ -1737,7 +1737,10 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 	//Alex Wesolowski
 	idPlayer* player = dynamic_cast<idPlayer*>(attacker);
 	if (player) {
-		int rewardMoney = health;  // Use monster's health as money reward
+		int rewardMoney = spawnArgs.GetInt("health");  // I use spawnArgs because setting a var of maxhealth only works for certain 
+		if (rewardMoney == 0) {
+			gameLocal.Printf("No moneyyyyy");
+		} 
 		player->ChangeMoney(rewardMoney);  // Give money to the player
 		gameLocal.Printf("Player killed %s and gained %d money!\n", GetName(), rewardMoney);
 	}

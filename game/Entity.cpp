@@ -642,6 +642,8 @@ void idEntity::Spawn( void ) {
 	}
 
 	health = spawnArgs.GetInt( "health" );
+	//maxhealth = health;
+	
 
 	InitDefaultPhysics( origin, axis );
 
