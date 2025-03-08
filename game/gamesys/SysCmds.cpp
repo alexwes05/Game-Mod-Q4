@@ -3041,7 +3041,7 @@ void Cmd_Money_f(const idCmdArgs& args) {
 		return;
 	}
 	money = player->inventory.money;
-	gameLocal.Printf("Money I have currently: %d\n", money);
+	gameLocal.Printf("Money: %d\n", money);
 }
 
 // RAVEN END

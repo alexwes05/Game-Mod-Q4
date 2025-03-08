@@ -17,6 +17,7 @@ AI.cpp
 #include "../Projectile.h"
 #include "../spawner.h"
 #include "AI_Tactical.h"
+#include "../Player.h"
 
 const char* aiTalkMessageString [ ] = {
 	"None",
@@ -1732,6 +1733,17 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 	}
 
 	SetState ( "State_Killed" );
+
+	//Alex Wesolowski
+	idPlayer* player = dynamic_cast<idPlayer*>(attacker);
+	if (player) {
+		int rewardMoney = health;  // Use monster's health as money reward
+		player->ChangeMoney(rewardMoney);  // Give money to the player
+		gameLocal.Printf("Player killed %s and gained %d money!\n", GetName(), rewardMoney);
+	}
+	
+
+
 
 	kv = spawnArgs.MatchPrefix( "def_drops", NULL );
 	while( kv ) {

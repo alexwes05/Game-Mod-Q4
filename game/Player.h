@@ -27,6 +27,8 @@ extern const idEventDef EV_SpectatorTouch;
 extern const idEventDef EV_Player_SetArmor;
 extern const idEventDef EV_Player_SetExtraProjPassEntity;
 extern const idEventDef EV_Player_DamageEffect;
+extern const idEventDef EV_Player_SetMoney;
+//extern const idEventDef EV_Player_ChangeMoney;
 
 const float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
 const int	LAND_DEFLECT_TIME			= 150;
@@ -796,6 +798,7 @@ public:
 	void					SetCash( float newCashAmount );
 	void					ResetCash();
 // RITUAL END
+	void					ChangeMoney(int amount); //change money alex wesolowski
 
 protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
@@ -1102,7 +1105,6 @@ private:
 	void					Event_SetArmor					( float newArmor );
 	
 	// alex wesolowski : money
-	void					Event_ChangeMoney				( int amount) ;
 	void					Event_SetMoney					( int setAmount);
 
 	void					Event_SetExtraProjPassEntity( idEntity* _extraProjPassEntity );

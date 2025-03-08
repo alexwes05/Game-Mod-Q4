@@ -109,6 +109,8 @@ const idEventDef EV_Player_SetExtraProjPassEntity( "setExtraProjPassEntity", "E"
 const idEventDef EV_Player_SetArmor( "setArmor", "f" );
 const idEventDef EV_Player_DamageEffect( "damageEffect", "sE" );
 const idEventDef EV_Player_AllowFallDamage( "allowFallDamage", "d" );
+const idEventDef EV_Player_SetMoney("setMoney", "d");
+//const idEventDef EV_Player_ChangeMoney("changeMoney", "i");
 
 // mekberg: allow enabling/disabling of objectives
 const idEventDef EV_Player_EnableObjectives( "enableObjectives" );
@@ -142,7 +144,7 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_GetAmmoData,			idPlayer::Event_GetAmmoData )
 	EVENT( EV_Player_RefillAmmo,			idPlayer::Event_RefillAmmo )
 	EVENT( EV_Player_AllowFallDamage,		idPlayer::Event_AllowFallDamage )
-
+	
 
 // mekberg: allow enabling/disabling of objectives
 	EVENT ( EV_Player_EnableObjectives,		idPlayer::Event_EnableObjectives )
@@ -166,7 +168,10 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_SetExtraProjPassEntity,idPlayer::Event_SetExtraProjPassEntity )
 //MCG: direct damage
 	EVENT( EV_Player_DamageEffect,			idPlayer::Event_DamageEffect )
-//Alex Wesolowski Edit?
+//Alex Wesolowski
+	EVENT(EV_Player_SetMoney, idPlayer::Event_SetMoney)
+	//EVENT(EV_Player_ChangeMoney, idPlayer::Event_ChangeMoney)
+	
 
 END_CLASS
 
@@ -11187,19 +11192,19 @@ void idPlayer::Event_AllowNewObjectives ( void ) {
 idPlayer::Event_SetMoney
 =============
 */
-/*
-void idPlayer::Event_ChangeMoney (int amount) {
-	money += amount;
-	gameLocal.Printf("Player's cahnged to: %d\n", money);
+
+void idPlayer::ChangeMoney (int amount) {
+	inventory.money += amount;
+	gameLocal.Printf("Player's changed to: %d (gained %d)\n", inventory.money, amount);
 	//if(amount < money) maybe for purchasing or I can make another function
 }
 
 void idPlayer::Event_SetMoney(int setAmount) {
-	money = setAmount;
-	gameLocal.Printf("Player's money set to: %d\n", money);
+	inventory.money = setAmount;
+	gameLocal.Printf("Player's money set to: %d\n", inventory.money);
 	//if(amount < money) maybe for purchasing or I can make another function
 }
-*/
+
 
 /*
 =============
