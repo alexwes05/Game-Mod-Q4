@@ -1741,6 +1741,7 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 		rewardMoney = 2*gameLocal.random.RandomInt(rewardMoney)/3+ rewardMoney/2; //half of the money is guaranteed and u can get up to 2/3 more
 		if (rewardMoney == 0) {
 			gameLocal.Printf("No moneyyyyy");
+			return;
 		} 
 		player->ChangeMoney(rewardMoney);  // Give money to the player
 		gameLocal.Printf("Player killed %s and gained %d money!\n", GetName(), rewardMoney);
