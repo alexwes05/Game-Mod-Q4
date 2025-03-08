@@ -1735,9 +1735,10 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 	SetState ( "State_Killed" );
 
 	//Alex Wesolowski
-	idPlayer* player = dynamic_cast<idPlayer*>(attacker);
+	idPlayer* player = dynamic_cast<idPlayer*>(attacker); //checks if player is the one who killed it might change later to account for minions
 	if (player) {
 		int rewardMoney = spawnArgs.GetInt("health");  // I use spawnArgs because setting a var of maxhealth only works for certain 
+		rewardMoney = 2*gameLocal.random.RandomInt(rewardMoney)/3+ rewardMoney/2; //half of the money is guaranteed and u can get up to 2/3 more
 		if (rewardMoney == 0) {
 			gameLocal.Printf("No moneyyyyy");
 		} 
