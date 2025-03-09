@@ -6,6 +6,9 @@
 #ifndef __GAME_PLAYER_H__
 #define __GAME_PLAYER_H__
 
+//class FishingSimulator;
+//#include "FishingSimulator.h"
+
 /*
 ===============================================================================
 
@@ -272,7 +275,6 @@ public:
 
 class idPlayer : public idActor {
 public:
-
  	enum {
  		EVENT_IMPULSE = idEntity::EVENT_MAXEVENTS,
  		EVENT_EXIT_TELEPORTER,
@@ -284,6 +286,8 @@ public:
  	};
 
 	friend class idThread;
+	FishingSimulator*		fishingSimulator; //alex for fishing
+	
 
 	usercmd_t				usercmd;
 
@@ -416,6 +420,7 @@ public:
 	bool					vsMsgState;
 
 	int						lastPickupTime;
+
 //RAVEN BEGIN
 // asalmon: the eneny the player is most likely currently aiming at
 #ifdef _XBOX

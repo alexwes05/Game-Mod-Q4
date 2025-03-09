@@ -5,6 +5,7 @@
 #include "../Game_local.h"
 // RAVEN BEGIN
 #include "../ai/AI.h"
+#include "../FishingSimulator.h"
 #if !defined(__GAME_PROJECTILE_H__)
 	#include "../Projectile.h"
 #endif
@@ -29,6 +30,7 @@
 #include "TypeInfo"
 #else
 #include "NoGameTypeInfo.h"
+
 #endif
 
 /*
@@ -3044,6 +3046,24 @@ void Cmd_Money_f(const idCmdArgs& args) {
 	gameLocal.Printf("Money: %d\n", money);
 }
 
+// ALEX WESOLOWSKI COMMAND - Check Fishing Simulator Initialization
+void Cmd_CheckFishing_f(const idCmdArgs& args) {
+	idPlayer* player = gameLocal.GetLocalPlayer();
+
+	if (!player) {
+		gameLocal.Printf("Error: No local player found!\n");
+		return;
+	}
+
+	if (!player->fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is NOT initialized for the player.\n");
+	}
+	else {
+		gameLocal.Printf("FishingSimulator is initialized. IsFishing: %s\n",
+		player->fishingSimulator->IsFishingComplete() ? "true" : "false");
+	}
+}
+
 // RAVEN END
 
 void Cmd_CheckSave_f( const idCmdArgs &args );
@@ -3267,6 +3287,8 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand("locate",					Cmd_Locate_f,				CMD_FL_GAME,				"Prints the users location to the screen");
 
 	cmdSystem->AddCommand("money",					Cmd_Money_f,				CMD_FL_GAME,				"Prints money");
+
+	cmdSystem->AddCommand("checkFishing",			Cmd_CheckFishing_f,				CMD_FL_GAME,			"Checks if the player's FishingSimulator is initialized");
 
 }
 

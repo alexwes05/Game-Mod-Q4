@@ -17,6 +17,7 @@
 #include "ai/AAS_tactical.h"
 #include "Healing_Station.h"
 #include "ai/AI_Medic.h"
+#include "FishingSimulator.h"
 
 // RAVEN BEGIN
 // nrausch: support for turning the weapon change ui on and off
@@ -1091,6 +1092,8 @@ idPlayer::idPlayer
 ==============
 */
 idPlayer::idPlayer() {
+	fishingSimulator = new FishingSimulator(this); //alex
+	//fishingSimulator = nullptr;
 	memset( &usercmd, 0, sizeof( usercmd ) );
 
 	alreadyDidTeamAnnouncerSound = false;
@@ -1511,6 +1514,7 @@ idPlayer::Init
 */
 void idPlayer::Init( void ) {
 	const char			*value;
+	//fishingSimulator = new FishingSimulator(this);
 	
 	noclip					= false;
 	godmode					= false;
@@ -1822,6 +1826,19 @@ Prepare any resources used by the player.
 void idPlayer::Spawn( void ) {
 	idStr		temp;
 	idBounds	bounds;
+
+	//GET RID OF (but after git commit I dont trust this)
+	if (!fishingSimulator) {
+		fishingSimulator = new FishingSimulator(this);  // Initialize only once
+	}
+	//fishingSimulator = new FishingSimulator(this); //to start fishing simulator
+	
+	if (!fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is NULL in Player!");
+	}
+	else {
+		gameLocal.Printf("FishingSimulator initialized correctly.\n");
+	}
 
 	if ( entityNumber >= MAX_CLIENTS ) {
 		gameLocal.Error( "entityNum > MAX_CLIENTS for player.  Player may only be spawned with a client." );

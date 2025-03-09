@@ -3,9 +3,9 @@
 //
 // MERGE_DATE 9/30/2004
 
+#include "FishingSimulator.h"
 #ifndef __GAME_WEAPON_H__
 #define __GAME_WEAPON_H__
-
 /*
 ===============================================================================
 
@@ -32,6 +32,7 @@ class idItem;
 class idAnimatedEntity;
 class idProjectile;
 class rvWeapon;
+//class FishingSimulator; //Alex
 
 class rvViewWeapon : public idAnimatedEntity {
 public:
@@ -102,6 +103,7 @@ private:
 	
 	friend		class rvWeapon;
 	rvWeapon*	weapon;
+protected:
 };
 
 class rvWeapon : public idClass {
@@ -237,6 +239,8 @@ public:
 	void				ExitCinematic				( void );
 
 protected:
+	idPlayer*			player; //alex wesolowski
+	FishingSimulator*	fishingSimulator;			//alex
 
 	virtual void		OnLaunchProjectile			( idProjectile* proj );
 
@@ -252,7 +256,7 @@ protected:
 	rvClientEffect*		PlayEffect					( const char* effectName, jointHandle_t joint, bool loop = false, const idVec3& endOrigin = vec3_origin, bool broadcast = false );
 
 	void				FindViewModelPositionStyle	( idVec3& viewOffset, idAngles& viewAngles ) const;
-
+	
 public:
 
 	void				InitLights					( void );
