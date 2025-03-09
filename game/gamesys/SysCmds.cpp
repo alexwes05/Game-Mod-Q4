@@ -3013,6 +3013,20 @@ void Cmd_TestClientModel_f( const idCmdArgs& args ) {
 //	face->SetModel( "model_player_marine" );
 }
 
+//ALEX WESOLOWSKI COMMAND
+void Cmd_Locate_f(const idCmdArgs& args) {
+	//char* msg;
+	idPlayer* player;
+	idVec3 origin;
+	player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		gameLocal.Printf("Error");
+		return;
+	}
+
+	origin = player->GetEyePosition();
+	gameLocal.Printf("location: (%f, %f, %f)", origin.x, origin.y, origin.z);
+}
 
 // RAVEN END
 
@@ -3232,6 +3246,9 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "buyMenu",				Cmd_ToggleBuyMenu_f,		CMD_FL_GAME,				"Toggle buy menu (if in a buy zone and the game type supports it)" );
 	cmdSystem->AddCommand( "buy",					Cmd_BuyItem_f,				CMD_FL_GAME,				"Buy an item (if in a buy zone and the game type supports it)" );
 // RITUAL END
+
+	//ALEX WESOLOWSKI
+	cmdSystem->AddCommand("locate",					Cmd_Locate_f,				CMD_FL_GAME,				"Prints the users location to the screen");
 
 }
 
