@@ -3059,8 +3059,8 @@ void Cmd_CheckFishing_f(const idCmdArgs& args) {
 		gameLocal.Printf("FishingSimulator is NOT initialized for the player.\n");
 	}
 	else {
-		gameLocal.Printf("FishingSimulator is initialized. IsFishing: %s\n",
-		player->fishingSimulator->IsFishingComplete() ? "true" : "false");
+		gameLocal.Printf("FishingSimulator is initialized: %s\n",
+		player->fishingSimulator ? "true" : "false");
 	}
 }
 

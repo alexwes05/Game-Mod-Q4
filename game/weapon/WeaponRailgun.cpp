@@ -115,38 +115,48 @@ rvWeaponRailgun::Think
 ================
 */
 void rvWeaponRailgun::Think(void) {
+	//gameLocal.Printf("Think() is running...\n");
 	if (!fishingSimulator) {
-        gameLocal.Warning("FishingSimulator is NULL in Think()!");
-        return;
-    }
-
-    if (!player) {
-        gameLocal.Warning("Player is NULL in Think()!");
-        return;
-    }
-
-	if (fishingSimulator) {
-		if (fishingSimulator->GetIsFishing()) {
-			if (fishingSimulator->IsFishingComplete()) {
-				if (player->usercmd.buttons & BUTTON_ATTACK) {
-					fishingSimulator->CatchFish();// Catch the fish
-				}
-				// Check if the player clicks the attack button again but without fish 
-			}
-			else if (player->usercmd.buttons & BUTTON_ATTACK) {
-				fishingSimulator->setIsFishing(false);
-			}
-			fishingSimulator->UpdateFishing();
-		}
+		gameLocal.Warning("FishingSimulator is NULL in Think()!");
+		return;
 	}
-	// Let the real weapon think first
-	rvWeapon::Think ( );
 
-	if ( zoomGui && wsfl.zoom && !gameLocal.isMultiplayer ) {
+	if (!player) {
+		gameLocal.Warning("Player is NULL in Think()!");
+		return;
+	}
+
+	// Let the real weapon think first
+	rvWeapon::Think();
+
+	
+	fishingSimulator->UpdateFishing();
+
+	/*
+	if (fishingSimulator->GetIsFishing()) {
+		gameLocal.Printf("Fishing state: isFishing = %d, fishingComplete = %d\n",
+			fishingSimulator->GetIsFishing(),
+			fishingSimulator->IsFishingComplete());
+
+		if (player->usercmd.buttons & BUTTON_ATTACK && wsfl.attack) {
+			fishingSimulator->CatchFish();// Catch the fish
+		}
+		else if (!fishingSimulator->IsFishingComplete() && player->usercmd.buttons & BUTTON_ATTACK) {
+			fishingSimulator->setIsFishing(false);
+			gameLocal.Printf("You reeled in too early! The fish got away.\n");
+		}
+
+	}
+	else if (!fishingSimulator->GetIsFishing() && player->usercmd.buttons & BUTTON_ATTACK && wsfl.attack) {
+		fishingSimulator->CastRod();
+	}
+	*/
+
+	if (zoomGui && wsfl.zoom && !gameLocal.isMultiplayer) {
 		int ammo = AmmoInClip();
-		if ( ammo >= 0 ) {
-			zoomGui->SetStateInt( "player_ammo", ammo );
-		}			
+		if (ammo >= 0) {
+			zoomGui->SetStateInt("player_ammo", ammo);
+		}
 	}
 }
 
@@ -219,26 +229,42 @@ stateResult_t rvWeaponRailgun::State_Fire ( const stateParms_t& parms ) {
 	enum {
 		STAGE_INIT,
 		STAGE_WAIT,
-		STAGE_FISHING, //in between casting and actually reeling in a fish
+		//STAGE_FISHING, //in between casting and actually reeling in a fish
 	};	
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
+			/*
 			if (fishingSimulator) {
 				fishingSimulator->CastRod();
 			}
+			*/
 			Attack ( false, 1, spread, 0, 1.0f );
-			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
+			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );
+
+
+			gameLocal.Printf("Fishing state: isFishing = %d\n",
+				fishingSimulator->GetIsFishing());
+
+			if (!fishingSimulator->GetIsFishing()) {
+				fishingSimulator->CastRod();
+			}
+			else {
+				fishingSimulator->CatchFish();
+			}
+
+
+
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
-		case STAGE_FISHING:
+		/*case STAGE_FISHING:
 			if (fishingSimulator && fishingSimulator->IsFishingComplete()) {
 				return SRESULT_STAGE(STAGE_WAIT);
 			}
 			else if (!fishingSimulator) {
 				return SRESULT_STAGE(STAGE_WAIT);
 			}
-			return SRESULT_WAIT;
+			return SRESULT_WAIT;*/
 
 
 		case STAGE_WAIT:		
