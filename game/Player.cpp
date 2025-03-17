@@ -3451,6 +3451,14 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 			_hud->HandleNamedEvent ( "updateBossBar" );
 		}
 	}
+
+	temp = _hud->State().GetInt("player_money", "-1");
+	if (temp != inventory.money) {
+		_hud->SetStateInt("player_moneyDelta", temp == -1 ? 0 : (temp - inventory.money));
+		_hud->SetStateInt("player_money", inventory.money);
+		//_hud->SetStateFloat("player_moneypct", inventory.money;
+		_hud->HandleNamedEvent("updateMoney");
+	}
 		
 	// god mode information
 	_hud->SetStateString( "player_god", va( "%i", (godmode && g_showGodDamage.GetBool()) ) );
@@ -3614,6 +3622,37 @@ void idPlayer::StopRadioChatter ( void ) {
 		vehicleController.StopRadioChatter( );
 	}
 }
+
+/*
+===============
+idPlayer::ShowFishReeling
+===============
+*/
+void idPlayer::ShowFishReeling(void) {
+	if (hud) {
+		hud->HandleNamedEvent("showFishReel");
+	}
+}
+
+/*
+===============
+idPlayer::HideFishReeling
+===============
+*/
+void idPlayer::HideFishReeling(void) {
+	if (hud) {
+		hud->HandleNamedEvent("hideFishReel");
+	}
+}
+
+void idPlayer::ChangeFishText(const char* message) {
+	if (hud) {
+		hud->SetStateString("fish_text", message);
+		hud->HandleNamedEvent("showFishText");
+		//showFishText 
+	}
+}
+
 
 /*
 ===============
@@ -7240,7 +7279,8 @@ void idPlayer::UpdateFocus( void ) {
 				}
 
 				ui->SetStateString( "player_health", va("%i", health ) );
-				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ) );
+				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ));
+				ui->SetStateString("player_money", va("%i%%%", inventory.money));
 
 				kv = ent->spawnArgs.MatchPrefix( "gui_", NULL );
 				while ( kv ) {

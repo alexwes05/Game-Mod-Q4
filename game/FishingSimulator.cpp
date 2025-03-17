@@ -5,6 +5,7 @@
 #include "FishingSimulator.h"
 #include "Player.h"
 #include "Weapon.h"
+//#include "../ui/UserInterface.h"
 
 /*
 ===============================================================================
@@ -28,6 +29,9 @@ FishingSimulator::FishingSimulator(idPlayer* p) {
     nextReel = 500;
     fishOnHook = false;
     displayMessage = true;
+    //hud = player->hud;
+
+        //player->hud;
 }
 
 /*
@@ -38,7 +42,12 @@ void FishingSimulator::UpdateFishing() {
     if (!isFishing) return;
 
     if (fishingTime <= gameLocal.time && displayMessage) {
-        gameLocal.Printf("A fish is biting! Fire to reel it in!\n");
+        //gameLocal.Printf("A fish is biting! Fire to reel it in!\n");
+        player->ChangeFishText("A fish is biting! Fire to reel it in!");
+        player->ShowFishReeling();
+        gameLocal.Printf("hud\n");
+        //hud->SetStateBool("fishOnHook::visible", true);
+        //hud->SetStateInt("fishOnHook::visible", 1);
         fishOnHook = true;
         displayMessage = false;
     }
@@ -47,14 +56,15 @@ void FishingSimulator::UpdateFishing() {
 void FishingSimulator::CastRod() {
     if (bait <= 0) {
         gameLocal.Printf("You have no bait left!\n");
+        player->ChangeFishText("You have no bait left!");
         return;
     }
     displayMessage = true;
     isFishing = true;
     bait--;
     castTime = gameLocal.time;
-    fishingTime = gameLocal.random.RandomInt(3000) + 2000 + castTime; // Random time between 2-5 seconds plus time casted
-    gameLocal.Printf("You cast your fishing rod...\n");
+    fishingTime = gameLocal.random.RandomInt(10000) + 2000 + castTime; // Random time between 2-5 seconds plus time casted
+    player->ChangeFishText("You cast your fishing rod...");
 }
 
 void FishingSimulator::setIsFishing(bool fish) {
@@ -66,7 +76,11 @@ bool FishingSimulator::GetIsFishing( void ) const {
 }
 
 void FishingSimulator::CatchFish() {
+    //hud->SetStateString("gui::fishOnHook::visible", "0");
+    //hud->HandleNamedEvent("hideFishReel");
+    player->HideFishReeling();
     if (!fishOnHook) {
+        player->ChangeFishText("You reeled in too early! The fish got away.");
         gameLocal.Printf("You reeled in too early! The fish got away.\n");
         isFishing = false;
         return;
@@ -75,20 +89,23 @@ void FishingSimulator::CatchFish() {
     int reward;
     int fishType = gameLocal.random.RandomInt(100); // Random number 0-99
     if (fishType < 50) {
+        player->ChangeFishText("You caught a small fish!");
         gameLocal.Printf("You caught a small fish!\n");
         reward = 5;
     }
     else if (fishType < 80) {
+        player->ChangeFishText("You caught a medium fish!");
         gameLocal.Printf("You caught a medium fish!\n");
         reward = 15;
     }
     else {
+        player->ChangeFishText("You caught a rare fish!");
         gameLocal.Printf("You caught a rare fish!\n");
         reward = 50;
     }
-    gameLocal.Printf("Gained %d money\nTotal money: %d + %d", reward, player->inventory.money, reward);
+    gameLocal.Printf("Gained %d$\nTotal money: %d + %d ", reward, player->inventory.money, reward);
     player->inventory.money += reward;
-    gameLocal.Printf("= %d\n", player->inventory.money);
+    gameLocal.Printf("= %d$\n", player->inventory.money);
 
     fishCaught++;
     isFishing = false;
@@ -97,6 +114,13 @@ void FishingSimulator::CatchFish() {
 
 
 
+/*
+arg = item->spawnArgs.MatchPrefix( "inv_armor", NULL );
+    if ( arg && hud ) {
+        hud->HandleNamedEvent( "armorPulse" );
+    }
+    = idPlayer::hud;
+    */
 /*
     .·:*¨ Shop ¨*:·.
 */

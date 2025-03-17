@@ -515,6 +515,13 @@ public:
 	void					DrawHUD( idUserInterface *hud );
 	void					StartRadioChatter ( void );
 	void					StopRadioChatter ( void );
+	
+	//void					ShowElement(const char* name);
+
+	
+	void					ShowFishReeling(void);
+	void					HideFishReeling(void);
+	void					ChangeFishText(const char* message);
 
 	void					WeaponFireFeedback( const idDict *weaponDef );
 

@@ -1,7 +1,6 @@
 #ifndef __FISHING_SIMULATOR_H__
 #define __FISHING_SIMULATOR_H__
 
-// Forward declaration of idPlayer
 class idPlayer;
 
 class FishingSimulator {
@@ -16,8 +15,10 @@ private:
     bool initialized;
     bool fishOnHook;
     bool displayMessage;
+    
 
 public:
+    //idUserInterface* hud;				// Common hud
     FishingSimulator(idPlayer* p);
     void CastRod();
     void UpdateFishing();
@@ -25,6 +26,7 @@ public:
     bool GetIsFishing( void ) const;
     void CatchFish();
     void BuyBait(int amount);
+
 
     //implement save and load later for bait and fish in inventory
     //void Save(idSaveGame* savefile) const;
