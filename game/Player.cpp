@@ -1149,6 +1149,8 @@ idPlayer::idPlayer() {
 // squirrel: Mode-agnostic buymenus
 	inBuyZone				= false;
 	inBuyZonePrev			= false;
+	toggledShop				= false; //Alex
+
 // RITUAL END
 	spectating				= false;
 	spectator				= 0;
@@ -2116,6 +2118,7 @@ idPlayer::Save
 void idPlayer::Save( idSaveGame *savefile ) const {
 	int i;
 
+
 	savefile->WriteUsercmd( usercmd );
 
 	playerView.Save( savefile );
@@ -2360,6 +2363,13 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	
 	// TOSAVE: const idDeclEntityDef*	cachedWeaponDefs [ MAX_WEAPONS ];	// cnicholson: Save these?
 	// TOSAVE: const idDeclEntityDef*	cachedPowerupDefs [ POWERUP_MAX ];
+	if (this->fishingSimulator) {
+		this->fishingSimulator->Save(savefile);
+	}
+	else {
+		gameLocal.Printf("Could not save fishing simulator items");
+	}
+	
 
 #ifndef _XENON
  	if ( hud ) {
@@ -2656,6 +2666,13 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	}
 	// create combat collision hull for exact collision detection
 	SetCombatModel();	
+
+	if(this->fishingSimulator){
+		this->fishingSimulator->Restore(savefile);
+	}
+	else {
+		gameLocal.Printf("Could not load fishing simulator items");
+	}
 
 // RAVEN BEGIN
 // mekberg: Grab from user info.
@@ -3650,6 +3667,13 @@ void idPlayer::ChangeFishText(const char* message) {
 		hud->SetStateString("fish_text", message);
 		hud->HandleNamedEvent("showFishText");
 		//showFishText 
+	}
+}
+
+void idPlayer::shopMenuHandling(void) {
+	if (hud) {
+		hud->HandleNamedEvent("showShop");
+			
 	}
 }
 
@@ -6619,6 +6643,33 @@ bool idPlayer::HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) {
 		return true;
 	}
 
+
+
+
+
+
+
+	/* Alex Wesolowski Commands for GUI fishing*/
+	if (this->fishingSimulator) {
+		if (token.Icmp("upgradeBait") == 0) {
+			// Perform upgrade logic
+			this->fishingSimulator->maxBait += 10; 
+			this->fishingSimulator->bait = this->fishingSimulator->maxBait;
+			//gui->SetStateInt("baitPower", bait); // Update the GUI with new bait power
+			return true;
+		}
+
+
+
+
+
+
+	}
+
+
+
+
+
 	src->UnreadToken( &token );
 	return false;
 }
@@ -8565,6 +8616,10 @@ void idPlayer::PerformImpulse( int impulse ) {
 			}
 			break;
 		}
+		case IMPULSE_16: {
+			shopMenuHandling();
+			break;
+		}
 		case IMPULSE_17: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.ToggleReady( );
@@ -9355,6 +9410,10 @@ Called every tic for each player
 */
 void idPlayer::Think( void ) {
 	renderEntity_t *headRenderEnt;
+
+	if (usercmd.impulse != 16) {
+		toggledShop = false;
+	} 
  
 	if ( talkingNPC ) {
 		if ( !talkingNPC.IsValid() ) {
@@ -9374,6 +9433,7 @@ void idPlayer::Think( void ) {
 	if ( !gameLocal.usercmds ) {
 		return;
 	}
+
 
 #ifdef _XENON
 	// change the crosshair if it's modified
@@ -9714,6 +9774,19 @@ void idPlayer::Think( void ) {
 		inBuyZone = false;
 
 	inBuyZonePrev = false;
+
+	//Alex Wesolowski
+/*
+if (usercmd.impulse == 16 && !toggledShop) {
+	shopMenuHandling();
+	toggledShop = true;
+	usercmdGen->StuffImpulse(27);
+	return;
+}*/
+
+	
+
+
 }
 
 /*

@@ -376,6 +376,7 @@ public:
 // squirrel: Mode-agnostic buymenus
 	bool					inBuyZone;
 	bool					inBuyZonePrev;
+	bool					toggledShop;
 // RITUAL END
 	bool					spectating;
 	bool					lastHitToggle;
@@ -522,6 +523,8 @@ public:
 	void					ShowFishReeling(void);
 	void					HideFishReeling(void);
 	void					ChangeFishText(const char* message);
+	void					shopMenuHandling(void);
+
 
 	void					WeaponFireFeedback( const idDict *weaponDef );
 

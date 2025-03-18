@@ -24,11 +24,13 @@ FishingSimulator::FishingSimulator(idPlayer* p) {
     player = p;
     fishCaught = 0; 
     bait = 10; 
+    maxBait = 10;
     isFishing = false;
     fishingTime = 0;
     nextReel = 500;
     fishOnHook = false;
     displayMessage = true;
+    moneyMultiplier = 1;
     //hud = player->hud;
 
         //player->hud;
@@ -75,6 +77,7 @@ bool FishingSimulator::GetIsFishing( void ) const {
     return isFishing;
 }
 
+//Can make it so it reels in new rod after 100 caught
 void FishingSimulator::CatchFish() {
     //hud->SetStateString("gui::fishOnHook::visible", "0");
     //hud->HandleNamedEvent("hideFishReel");
@@ -113,18 +116,9 @@ void FishingSimulator::CatchFish() {
 }
 
 
-
-/*
-arg = item->spawnArgs.MatchPrefix( "inv_armor", NULL );
-    if ( arg && hud ) {
-        hud->HandleNamedEvent( "armorPulse" );
-    }
-    = idPlayer::hud;
-    */
 /*
     .·:*¨ Shop ¨*:·.
 */
-
 
 void FishingSimulator::BuyBait(int amount) {
     if (player->inventory.money >= amount * 5) {  // 5 per bait
@@ -136,3 +130,31 @@ void FishingSimulator::BuyBait(int amount) {
         gameLocal.Printf("Not enough money to buy bait!\n");
     }
 }
+
+/*
+    .·:*¨ Save/Restore ¨*:·.
+*/
+
+void FishingSimulator::Save(idSaveGame* savefile) const {
+    savefile->WriteInt(fishCaught);
+    savefile->WriteInt(bait);
+
+}
+
+void FishingSimulator::Restore(idRestoreGame* savefile) {
+    savefile->ReadInt(fishCaught);
+    savefile->ReadInt(bait);
+
+
+}
+
+
+
+/*
+for (int i = 0; i < numFish; i++) {
+    savefile->WriteString(caughtFish[i].name);
+    savefile->WriteInt(caughtFish[i].size);
+    savefile->WriteInt(caughtFish[i].rarity);
+}
+*/
+//gameLocal.Printf("Saved %d fish.\n", numFish);

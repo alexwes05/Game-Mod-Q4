@@ -3061,6 +3061,7 @@ void Cmd_CheckFishing_f(const idCmdArgs& args) {
 	else {
 		gameLocal.Printf("FishingSimulator is initialized: %s\n",
 		player->fishingSimulator ? "true" : "false");
+		gameLocal.Printf("Bait: %d\nFish Caught: %d\n", player->fishingSimulator->bait, player->fishingSimulator->fishCaught);
 	}
 }
 

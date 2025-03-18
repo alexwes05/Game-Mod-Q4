@@ -6,8 +6,7 @@ class idPlayer;
 class FishingSimulator {
 private:
     idPlayer* player; 
-    int fishCaught;
-    int bait;
+    
     int nextReel;
     bool isFishing;
     int fishingTime;
@@ -18,6 +17,10 @@ private:
     
 
 public:
+    int fishCaught;
+    int bait;
+    int moneyMultiplier;
+    int maxBait;
     //idUserInterface* hud;				// Common hud
     FishingSimulator(idPlayer* p);
     void CastRod();
@@ -26,6 +29,8 @@ public:
     bool GetIsFishing( void ) const;
     void CatchFish();
     void BuyBait(int amount);
+    void Save(idSaveGame* savefile) const;
+    void Restore(idRestoreGame* savefile);
 
 
     //implement save and load later for bait and fish in inventory
