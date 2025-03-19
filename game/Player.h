@@ -349,6 +349,7 @@ public:
 	idUserInterface *		mphud;				// hud overlay containing MP elements
 	
 	idUserInterface *		objectiveSystem;
+	idUserInterface*		shop;
 	idUserInterface *		cinematicHud;
 	bool					objectiveSystemOpen;
 	bool					objectiveButtonReleased;

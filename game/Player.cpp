@@ -3672,10 +3672,31 @@ void idPlayer::ChangeFishText(const char* message) {
 
 void idPlayer::shopMenuHandling(void) {
 	if (hud) {
-		hud->HandleNamedEvent("showShop");
+		//gameLocal.guiSystem->RunGui("shop_gui");
+		/*
+		shop = uiManager->FindGui(spawnArgs.GetString("shopMenu", "guis/shopMenu.gui"), true, false, true);
+		if (shop) {
+			//gameLocal.Printf("GUI LOADED SUCCESSFULLY\n");
+			//SetFocus(FOCUS_GUI, 5000, nullptr, shop);
+			//shop->SetStateBool("gameDraw", true);
+			//shop->Activate(true, gameLocal.time);
+			//shop->HandleNamedEvent("open_shop_menu");
 			
+
+
+
+			// Make the shopMenu visible
+			//shop->SetVisible(true);\
+
+		}
+		*/
+		hud->HandleNamedEvent("showShop");
+		//hud->HandleNamedEvent("");
 	}
+
 }
+
+
 
 
 /*
@@ -6776,6 +6797,8 @@ void idPlayer::UpdateFocus( void ) {
 		return;
 	}
 
+
+
 #ifndef _XENON
 	cvarSystem->SetCVarInteger( "pm_isZoomed", zoomed ? pm_zoomedSlow.GetInteger() : 0 );
 #endif
@@ -7340,6 +7363,7 @@ void idPlayer::UpdateFocus( void ) {
 				}
 			}
 
+			if(!toggledShop){
 			// clamp the mouse to the corner
 			const char*	command;
 			sysEvent_t	ev;
@@ -7351,6 +7375,13 @@ void idPlayer::UpdateFocus( void ) {
  			ev = sys->GenerateMouseMoveEvent( pt.x * SCREEN_WIDTH, pt.y * SCREEN_HEIGHT );
 			command = ui->HandleEvent( &ev, gameLocal.time );
  			HandleGuiCommands( ent, command );
+			}
+
+			if (toggledShop) {
+				// Ensure cursor is visible when the shop is active
+				cursor->SetStateInt("visible", 1);
+				cursor->DrawCursor();
+			}
 			
 #ifdef _XENON
 			int usepad = 0;
@@ -8618,7 +8649,29 @@ void idPlayer::PerformImpulse( int impulse ) {
 		}
 		case IMPULSE_16: {
 			shopMenuHandling();
-			break;
+			if (toggledShop == false) {
+				idUserInterface* cursor = this->GetCursorGUI();
+				if (cursor) {
+
+					//SetFocus(FOCUS_GUI, 100000, nullptr, cursor);
+					//gameLocal.sessionCommand = "game_startmenu";
+					//gui->Activate(false, gameLocal.time);
+					cursor->Activate(true, gameLocal.time);  // Activate the cursor
+					cursor->Redraw(gameLocal.time);          // Redraw the cursor to ensure it shows up
+				}
+			}
+			else if (toggledShop == true) {
+				toggledShop = false;  // Close the shop menu if it's already open
+
+				idUserInterface* cursor = this->GetCursorGUI();
+				if (cursor) {
+					//SetFocus(FOCUS_CHARACTER, 0, nullptr, nullptr);
+					ClearFocus();
+					cursor->Activate(false, gameLocal.time);  // Deactivate the cursor when closing the shop
+					
+				}
+			}
+				break;
 		}
 		case IMPULSE_17: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
@@ -9411,9 +9464,13 @@ Called every tic for each player
 void idPlayer::Think( void ) {
 	renderEntity_t *headRenderEnt;
 
-	if (usercmd.impulse != 16) {
-		toggledShop = false;
-	} 
+	if (toggledShop) {
+		idUserInterface* cursor = this->GetCursorGUI();
+		if (cursor) {
+			cursor->Activate(true, gameLocal.time);
+			cursor->Redraw(gameLocal.time);
+		}
+	}
  
 	if ( talkingNPC ) {
 		if ( !talkingNPC.IsValid() ) {
@@ -11328,13 +11385,13 @@ idPlayer::Event_SetMoney
 
 void idPlayer::ChangeMoney (int amount) {
 	inventory.money += amount;
-	gameLocal.Printf("Player's changed to: %d (gained %d)\n", inventory.money, amount);
+	//gameLocal.Printf("Player's changed to: %d (gained %d)\n", inventory.money, amount);
 	//if(amount < money) maybe for purchasing or I can make another function
 }
 
 void idPlayer::Event_SetMoney(int setAmount) {
 	inventory.money = setAmount;
-	gameLocal.Printf("Player's money set to: %d\n", inventory.money);
+	//gameLocal.Printf("Player's money set to: %d\n", inventory.money);
 	//if(amount < money) maybe for purchasing or I can make another function
 }
 

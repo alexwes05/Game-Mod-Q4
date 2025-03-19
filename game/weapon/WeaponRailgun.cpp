@@ -243,8 +243,8 @@ stateResult_t rvWeaponRailgun::State_Fire ( const stateParms_t& parms ) {
 			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );
 
 
-			gameLocal.Printf("Fishing state: isFishing = %d\n",
-				fishingSimulator->GetIsFishing());
+			//gameLocal.Printf("Fishing state: isFishing = %d\n",
+			//	fishingSimulator->GetIsFishing());
 
 			if (!fishingSimulator->GetIsFishing()) {
 				fishingSimulator->CastRod();

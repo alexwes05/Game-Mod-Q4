@@ -3065,6 +3065,110 @@ void Cmd_CheckFishing_f(const idCmdArgs& args) {
 	}
 }
 
+void Cmd_Upgrade_f(const idCmdArgs& args) {
+	// Ensure the correct number of arguments is passed (i.e., upgrade name)
+	if (args.Argc() != 2) {
+		gameLocal.Printf("Usage: upgrade <upgradeName>\n");
+		gameLocal.Printf("Valid upgrade names: baitPower, maxBait, rodPower, fishAmount, luckBonus\n");
+		return;
+	}
+
+	idPlayer* player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		gameLocal.Printf("Error: No local player found!\n");
+		return;
+	}
+
+	// Get the upgrade name passed as a command argument
+	const char* upgradeName = args.Argv(1);
+
+	// Ensure the FishingSimulator is initialized
+	if (!player->fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is not initialized for the player.\n");
+		return;
+	}
+
+	// Call the Upgrade function
+	player->fishingSimulator->Upgrade(upgradeName);
+}
+
+// ALEX WESOLOWSKI COMMAND - Display upgrade info
+void Cmd_DisplayUpgradeInfo_f(const idCmdArgs& args) {
+	idPlayer* player = gameLocal.GetLocalPlayer();
+
+	if (!player) {
+		gameLocal.Printf("Error: No local player found!\n");
+		return;
+	}
+
+	// Ensure the FishingSimulator is initialized
+	if (!player->fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is not initialized for the player.\n");
+		return;
+	}
+
+	// Call the DisplayUpgradeInfo function
+	player->fishingSimulator->DisplayUpgradeInfo();
+}
+
+void Cmd_RestoreBait_f(const idCmdArgs& args) {
+	idPlayer* player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		gameLocal.Printf("Error: No local player found!\n");
+		return;
+	}
+
+	// Ensure the FishingSimulator is initialized
+	if (!player->fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is not initialized for the player.\n");
+		return;
+	}
+
+	// Determine how many baits can be restored based on maxBait
+	int baitsToRestore = player->fishingSimulator->maxBait - player->fishingSimulator->bait;
+
+	if (baitsToRestore <= 0) {
+		gameLocal.Printf("You already have the maximum bait. No need to restore.\n");
+		return;
+	}
+
+	// Calculate the total cost (5 money per bait)
+	int totalCost = baitsToRestore * 5;
+
+	// Deduct the money and restore the bait
+	player->inventory.money -= totalCost;
+	player->fishingSimulator->bait += baitsToRestore;  // Restore the baits
+
+	gameLocal.Printf("Restored %d bait(s) for %d$! You now have %d bait(s) and %d$ remaining.\n",
+		baitsToRestore, totalCost, player->fishingSimulator->bait, player->inventory.money);
+}
+
+void Cmd_UpgradeFishAmount_f(const idCmdArgs& args) {
+	if (args.Argc() != 2) {
+		gameLocal.Printf("Usage: upgradeFishAmount <amount>\n");
+		return;
+	}
+
+	idPlayer* player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		gameLocal.Printf("Error: No local player found!\n");
+		return;
+	}
+
+	int amount = atoi(args.Argv(1));  // Get the amount to increase
+
+	// Ensure the FishingSimulator is initialized
+	if (!player->fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is not initialized for the player.\n");
+		return;
+	}
+
+	// Call the UpgradeFishAmount function
+	player->fishingSimulator->UpgradeFishAmount(amount);
+}
+
+
+
 // RAVEN END
 
 void Cmd_CheckSave_f( const idCmdArgs &args );
@@ -3291,6 +3395,11 @@ void idGameLocal::InitConsoleCommands( void ) {
 
 	cmdSystem->AddCommand("checkFishing",			Cmd_CheckFishing_f,				CMD_FL_GAME,			"Checks if the player's FishingSimulator is initialized");
 
+
+	cmdSystem->AddCommand("upgrade", Cmd_Upgrade_f, CMD_FL_GAME, "Upgrades a specified fishing simulator stat (e.g., baitPower, maxBait, etc.)");
+	cmdSystem->AddCommand("displayUpgradeInfo", Cmd_DisplayUpgradeInfo_f, CMD_FL_GAME, "Displays upgrade info including current level and cost for the next upgrade");
+	cmdSystem->AddCommand("restoreBait", Cmd_RestoreBait_f, CMD_FL_GAME, "Restores all possible baits up to the player's maxBait for 5$ per bait.");
+	cmdSystem->AddCommand("upgradeFishAmount", Cmd_UpgradeFishAmount_f, CMD_FL_GAME, "Upgrades the fish amount you can catch by a specified amount.");
 }
 
 /*
