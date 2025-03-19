@@ -6,6 +6,9 @@
 #ifndef __GAME_PLAYER_H__
 #define __GAME_PLAYER_H__
 
+//class FishingSimulator;
+//#include "FishingSimulator.h"
+
 /*
 ===============================================================================
 
@@ -27,6 +30,8 @@ extern const idEventDef EV_SpectatorTouch;
 extern const idEventDef EV_Player_SetArmor;
 extern const idEventDef EV_Player_SetExtraProjPassEntity;
 extern const idEventDef EV_Player_DamageEffect;
+extern const idEventDef EV_Player_SetMoney;
+//extern const idEventDef EV_Player_ChangeMoney;
 
 const float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
 const int	LAND_DEFLECT_TIME			= 150;
@@ -207,6 +212,7 @@ public:
 	int						clip[ MAX_WEAPONS ];
 	int						powerupEndTime[ POWERUP_MAX ];
 	int						weaponMods[ MAX_WEAPONS ];
+	int						money; //Alex Wesolowski
 
  	// multiplayer
  	int						ammoPredictTime;
@@ -269,7 +275,6 @@ public:
 
 class idPlayer : public idActor {
 public:
-
  	enum {
  		EVENT_IMPULSE = idEntity::EVENT_MAXEVENTS,
  		EVENT_EXIT_TELEPORTER,
@@ -281,6 +286,8 @@ public:
  	};
 
 	friend class idThread;
+	FishingSimulator*		fishingSimulator; //alex for fishing
+	
 
 	usercmd_t				usercmd;
 
@@ -342,6 +349,7 @@ public:
 	idUserInterface *		mphud;				// hud overlay containing MP elements
 	
 	idUserInterface *		objectiveSystem;
+	idUserInterface*		shop;
 	idUserInterface *		cinematicHud;
 	bool					objectiveSystemOpen;
 	bool					objectiveButtonReleased;
@@ -369,6 +377,7 @@ public:
 // squirrel: Mode-agnostic buymenus
 	bool					inBuyZone;
 	bool					inBuyZonePrev;
+	bool					toggledShop;
 // RITUAL END
 	bool					spectating;
 	bool					lastHitToggle;
@@ -413,6 +422,7 @@ public:
 	bool					vsMsgState;
 
 	int						lastPickupTime;
+
 //RAVEN BEGIN
 // asalmon: the eneny the player is most likely currently aiming at
 #ifdef _XBOX
@@ -507,6 +517,15 @@ public:
 	void					DrawHUD( idUserInterface *hud );
 	void					StartRadioChatter ( void );
 	void					StopRadioChatter ( void );
+	
+	//void					ShowElement(const char* name);
+
+	
+	void					ShowFishReeling(void);
+	void					HideFishReeling(void);
+	void					ChangeFishText(const char* message);
+	void					shopMenuHandling(void);
+
 
 	void					WeaponFireFeedback( const idDict *weaponDef );
 
@@ -795,6 +814,7 @@ public:
 	void					SetCash( float newCashAmount );
 	void					ResetCash();
 // RITUAL END
+	void					ChangeMoney(int amount); //change money alex wesolowski
 
 protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
@@ -1099,6 +1119,9 @@ private:
 	// mekberg:	added sethealth
 	void					Event_SetHealth					( float newHealth );
 	void					Event_SetArmor					( float newArmor );
+	
+	// alex wesolowski : money
+	void					Event_SetMoney					( int setAmount);
 
 	void					Event_SetExtraProjPassEntity( idEntity* _extraProjPassEntity );
 	void					Event_DamageEffect			( const char *damageDefName, idEntity* _damageFromEnt  );

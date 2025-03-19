@@ -106,6 +106,8 @@ const idEventDef EV_Player_SetExtraProjPassEntity( "setExtraProjPassEntity", "E"
 const idEventDef EV_Player_SetArmor( "setArmor", "f" );
 const idEventDef EV_Player_DamageEffect( "damageEffect", "sE" );
 const idEventDef EV_Player_AllowFallDamage( "allowFallDamage", "d" );
+const idEventDef EV_Player_SetMoney("setMoney", "i");
+const idEventDef EV_Player_ChangeMoney("changeMoney", "i");
 
 // mekberg: allow enabling/disabling of objectives
 const idEventDef EV_Player_EnableObjectives( "enableObjectives" );
@@ -163,6 +165,11 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_SetExtraProjPassEntity,idPlayer::Event_SetExtraProjPassEntity )
 //MCG: direct damage
 	EVENT( EV_Player_DamageEffect,			idPlayer::Event_DamageEffect )
+
+
+//Alex Wesolowski
+	EVENT( EV_Player_SetMoney,		idPlayer::Event_SetMoney)
+	EVENT( EV_Player_ChangeMoney,			idPlayer::Event_ChangeMoney)
 END_CLASS
 
 // RAVEN BEGIN
@@ -11197,6 +11204,23 @@ idPlayer::Event_SetArmor
 */
 void idPlayer::Event_SetArmor( float newArmor ) {
 	inventory.armor = idMath::ClampInt( 0 , inventory.maxarmor, newArmor );
+}
+
+/*
+============ =
+idPlayer::Event_SetHealth
+============ =
+*/
+void idPlayer::Event_ChangeMoney(int money) {
+	inventory.money += money;
+}
+/*
+=============
+idPlayer::Event_SetArmor
+=============
+*/
+void idPlayer::Event_SetMoney(int newMoney) {
+	inventory.money = newMoney;
 }
 
 /*

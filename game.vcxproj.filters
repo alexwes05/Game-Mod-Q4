@@ -63,9 +63,6 @@
     <ClCompile Include="game\Entity.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="game\FreeView.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="game\Game_Debug.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -516,6 +513,10 @@
     <ClCompile Include="game\mp\stats\StatWindow.cpp">
       <Filter>Game\MP\Stats</Filter>
     </ClCompile>
+    <ClCompile Include="Game\FishingSimulator.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\FreeView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\Actor.h">
@@ -829,6 +830,9 @@
     </ClInclude>
     <ClInclude Include="game\mp\stats\StatWindow.h">
       <Filter>Game\MP\Stats</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\FishingSimulator.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

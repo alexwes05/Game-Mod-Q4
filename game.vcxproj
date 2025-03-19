@@ -277,6 +277,7 @@
     <ClCompile Include="game\client\ClientMoveable.cpp" />
     <ClCompile Include="game\Effect.cpp" />
     <ClCompile Include="game\Entity.cpp" />
+    <ClCompile Include="Game\FishingSimulator.cpp" />
     <ClCompile Include="game\FreeView.cpp" />
     <ClCompile Include="game\GameEdit.cpp" />
     <ClCompile Include="game\gamesys\Class.cpp" />
@@ -401,6 +402,7 @@
     <ClInclude Include="game\client\ClientMoveable.h" />
     <ClInclude Include="game\Effect.h" />
     <ClInclude Include="game\Entity.h" />
+    <ClInclude Include="Game\FishingSimulator.h" />
     <ClInclude Include="game\FreeView.h" />
     <ClInclude Include="game\Fx.h" />
     <ClInclude Include="game\Game.h" />

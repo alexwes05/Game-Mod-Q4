@@ -17,6 +17,7 @@
 #include "ai/AAS_tactical.h"
 #include "Healing_Station.h"
 #include "ai/AI_Medic.h"
+#include "FishingSimulator.h"
 
 // RAVEN BEGIN
 // nrausch: support for turning the weapon change ui on and off
@@ -109,6 +110,8 @@ const idEventDef EV_Player_SetExtraProjPassEntity( "setExtraProjPassEntity", "E"
 const idEventDef EV_Player_SetArmor( "setArmor", "f" );
 const idEventDef EV_Player_DamageEffect( "damageEffect", "sE" );
 const idEventDef EV_Player_AllowFallDamage( "allowFallDamage", "d" );
+const idEventDef EV_Player_SetMoney("setMoney", "d");
+//const idEventDef EV_Player_ChangeMoney("changeMoney", "i");
 
 // mekberg: allow enabling/disabling of objectives
 const idEventDef EV_Player_EnableObjectives( "enableObjectives" );
@@ -142,7 +145,7 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_GetAmmoData,			idPlayer::Event_GetAmmoData )
 	EVENT( EV_Player_RefillAmmo,			idPlayer::Event_RefillAmmo )
 	EVENT( EV_Player_AllowFallDamage,		idPlayer::Event_AllowFallDamage )
-
+	
 
 // mekberg: allow enabling/disabling of objectives
 	EVENT ( EV_Player_EnableObjectives,		idPlayer::Event_EnableObjectives )
@@ -166,6 +169,11 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_SetExtraProjPassEntity,idPlayer::Event_SetExtraProjPassEntity )
 //MCG: direct damage
 	EVENT( EV_Player_DamageEffect,			idPlayer::Event_DamageEffect )
+//Alex Wesolowski
+	EVENT(EV_Player_SetMoney, idPlayer::Event_SetMoney)
+	//EVENT(EV_Player_ChangeMoney, idPlayer::Event_ChangeMoney)
+	
+
 END_CLASS
 
 // RAVEN BEGIN
@@ -206,6 +214,7 @@ void idInventory::Clear( void ) {
 	armor				= 0;
 	maxarmor			= 0;
 	secretAreasDiscovered = 0;
+	money = 0;
 
 	memset( ammo, 0, sizeof( ammo ) );
 
@@ -275,6 +284,9 @@ void idInventory::GetPersistantData( idDict &dict ) {
 	// armor
 	dict.SetInt( "armor", armor );
 
+	//money : Alex Wesolowski
+	dict.SetInt("money", money);
+
 	// ammo
 	for( i = 0; i < MAX_AMMOTYPES; i++ ) {
 		name = rvWeapon::GetAmmoNameForIndex( i );
@@ -339,6 +351,8 @@ void idInventory::RestoreInventory( idPlayer *owner, const idDict &dict ) {
 	maxHealth		= dict.GetInt( "maxhealth", "100" );
 	armor			= dict.GetInt( "armor", "50" );
 	maxarmor		= dict.GetInt( "maxarmor", "100" );
+	money			= dict.GetInt("money", "100"); //alex wesolowski
+
 
 	// ammo
 	for( i = 0; i < MAX_AMMOTYPES; i++ ) {
@@ -388,7 +402,6 @@ void idInventory::RestoreInventory( idPlayer *owner, const idDict &dict ) {
 		lti.triggerName = dict.GetString( itemname );
 		levelTriggers.Append( lti );
 	}
-
 }
 
 /*
@@ -404,7 +417,8 @@ void idInventory::Save( idSaveGame *savefile ) const {
 	savefile->WriteInt( powerups );
 	savefile->WriteInt( armor );
 	savefile->WriteInt( maxarmor );
-
+	savefile->WriteInt(money); //alexwesolowski
+	
 	for( i = 0; i < MAX_AMMO; i++ ) {
 		savefile->WriteInt( ammo[ i ] );
 	}
@@ -484,6 +498,7 @@ void idInventory::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt( powerups );
 	savefile->ReadInt( armor );
 	savefile->ReadInt( maxarmor );
+	savefile->ReadInt(money);
 
 	for( i = 0; i < MAX_AMMO; i++ ) {
 		savefile->ReadInt( ammo[ i ] );
@@ -1077,6 +1092,8 @@ idPlayer::idPlayer
 ==============
 */
 idPlayer::idPlayer() {
+	fishingSimulator = new FishingSimulator(this); //alex
+	//fishingSimulator = nullptr;
 	memset( &usercmd, 0, sizeof( usercmd ) );
 
 	alreadyDidTeamAnnouncerSound = false;
@@ -1132,6 +1149,8 @@ idPlayer::idPlayer() {
 // squirrel: Mode-agnostic buymenus
 	inBuyZone				= false;
 	inBuyZonePrev			= false;
+	toggledShop				= false; //Alex
+
 // RITUAL END
 	spectating				= false;
 	spectator				= 0;
@@ -1497,6 +1516,7 @@ idPlayer::Init
 */
 void idPlayer::Init( void ) {
 	const char			*value;
+	//fishingSimulator = new FishingSimulator(this);
 	
 	noclip					= false;
 	godmode					= false;
@@ -1809,6 +1829,19 @@ void idPlayer::Spawn( void ) {
 	idStr		temp;
 	idBounds	bounds;
 
+	//GET RID OF (but after git commit I dont trust this)
+	if (!fishingSimulator) {
+		fishingSimulator = new FishingSimulator(this);  // Initialize only once
+	}
+	//fishingSimulator = new FishingSimulator(this); //to start fishing simulator
+	
+	if (!fishingSimulator) {
+		gameLocal.Printf("FishingSimulator is NULL in Player!");
+	}
+	else {
+		gameLocal.Printf("FishingSimulator initialized correctly.\n");
+	}
+
 	if ( entityNumber >= MAX_CLIENTS ) {
 		gameLocal.Error( "entityNum > MAX_CLIENTS for player.  Player may only be spawned with a client." );
 	}
@@ -2085,6 +2118,7 @@ idPlayer::Save
 void idPlayer::Save( idSaveGame *savefile ) const {
 	int i;
 
+
 	savefile->WriteUsercmd( usercmd );
 
 	playerView.Save( savefile );
@@ -2329,6 +2363,13 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	
 	// TOSAVE: const idDeclEntityDef*	cachedWeaponDefs [ MAX_WEAPONS ];	// cnicholson: Save these?
 	// TOSAVE: const idDeclEntityDef*	cachedPowerupDefs [ POWERUP_MAX ];
+	if (this->fishingSimulator) {
+		this->fishingSimulator->Save(savefile);
+	}
+	else {
+		gameLocal.Printf("Could not save fishing simulator items");
+	}
+	
 
 #ifndef _XENON
  	if ( hud ) {
@@ -2625,6 +2666,13 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	}
 	// create combat collision hull for exact collision detection
 	SetCombatModel();	
+
+	if(this->fishingSimulator){
+		this->fishingSimulator->Restore(savefile);
+	}
+	else {
+		gameLocal.Printf("Could not load fishing simulator items");
+	}
 
 // RAVEN BEGIN
 // mekberg: Grab from user info.
@@ -3420,6 +3468,14 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 			_hud->HandleNamedEvent ( "updateBossBar" );
 		}
 	}
+
+	temp = _hud->State().GetInt("player_money", "-1");
+	if (temp != inventory.money) {
+		_hud->SetStateInt("player_moneyDelta", temp == -1 ? 0 : (temp - inventory.money));
+		_hud->SetStateInt("player_money", inventory.money);
+		//_hud->SetStateFloat("player_moneypct", inventory.money;
+		_hud->HandleNamedEvent("updateMoney");
+	}
 		
 	// god mode information
 	_hud->SetStateString( "player_god", va( "%i", (godmode && g_showGodDamage.GetBool()) ) );
@@ -3583,6 +3639,65 @@ void idPlayer::StopRadioChatter ( void ) {
 		vehicleController.StopRadioChatter( );
 	}
 }
+
+/*
+===============
+idPlayer::ShowFishReeling
+===============
+*/
+void idPlayer::ShowFishReeling(void) {
+	if (hud) {
+		hud->HandleNamedEvent("showFishReel");
+	}
+}
+
+/*
+===============
+idPlayer::HideFishReeling
+===============
+*/
+void idPlayer::HideFishReeling(void) {
+	if (hud) {
+		hud->HandleNamedEvent("hideFishReel");
+	}
+}
+
+void idPlayer::ChangeFishText(const char* message) {
+	if (hud) {
+		hud->SetStateString("fish_text", message);
+		hud->HandleNamedEvent("showFishText");
+		//showFishText 
+	}
+}
+
+void idPlayer::shopMenuHandling(void) {
+	if (hud) {
+		//gameLocal.guiSystem->RunGui("shop_gui");
+		/*
+		shop = uiManager->FindGui(spawnArgs.GetString("shopMenu", "guis/shopMenu.gui"), true, false, true);
+		if (shop) {
+			//gameLocal.Printf("GUI LOADED SUCCESSFULLY\n");
+			//SetFocus(FOCUS_GUI, 5000, nullptr, shop);
+			//shop->SetStateBool("gameDraw", true);
+			//shop->Activate(true, gameLocal.time);
+			//shop->HandleNamedEvent("open_shop_menu");
+			
+
+
+
+			// Make the shopMenu visible
+			//shop->SetVisible(true);\
+
+		}
+		*/
+		hud->HandleNamedEvent("showShop");
+		//hud->HandleNamedEvent("");
+	}
+
+}
+
+
+
 
 /*
 ===============
@@ -6549,6 +6664,33 @@ bool idPlayer::HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) {
 		return true;
 	}
 
+
+
+
+
+
+
+	/* Alex Wesolowski Commands for GUI fishing*/
+	if (this->fishingSimulator) {
+		if (token.Icmp("upgradeBait") == 0) {
+			// Perform upgrade logic
+			this->fishingSimulator->maxBait += 10; 
+			this->fishingSimulator->bait = this->fishingSimulator->maxBait;
+			//gui->SetStateInt("baitPower", bait); // Update the GUI with new bait power
+			return true;
+		}
+
+
+
+
+
+
+	}
+
+
+
+
+
 	src->UnreadToken( &token );
 	return false;
 }
@@ -6654,6 +6796,8 @@ void idPlayer::UpdateFocus( void ) {
 	if ( g_perfTest_noPlayerFocus.GetBool() ) {
 		return;
 	}
+
+
 
 #ifndef _XENON
 	cvarSystem->SetCVarInteger( "pm_isZoomed", zoomed ? pm_zoomedSlow.GetInteger() : 0 );
@@ -7209,7 +7353,8 @@ void idPlayer::UpdateFocus( void ) {
 				}
 
 				ui->SetStateString( "player_health", va("%i", health ) );
-				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ) );
+				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ));
+				ui->SetStateString("player_money", va("%i%%%", inventory.money));
 
 				kv = ent->spawnArgs.MatchPrefix( "gui_", NULL );
 				while ( kv ) {
@@ -7218,6 +7363,7 @@ void idPlayer::UpdateFocus( void ) {
 				}
 			}
 
+			if(!toggledShop){
 			// clamp the mouse to the corner
 			const char*	command;
 			sysEvent_t	ev;
@@ -7229,6 +7375,13 @@ void idPlayer::UpdateFocus( void ) {
  			ev = sys->GenerateMouseMoveEvent( pt.x * SCREEN_WIDTH, pt.y * SCREEN_HEIGHT );
 			command = ui->HandleEvent( &ev, gameLocal.time );
  			HandleGuiCommands( ent, command );
+			}
+
+			if (toggledShop) {
+				// Ensure cursor is visible when the shop is active
+				cursor->SetStateInt("visible", 1);
+				cursor->DrawCursor();
+			}
 			
 #ifdef _XENON
 			int usepad = 0;
@@ -8494,6 +8647,32 @@ void idPlayer::PerformImpulse( int impulse ) {
 			}
 			break;
 		}
+		case IMPULSE_16: {
+			shopMenuHandling();
+			if (toggledShop == false) {
+				idUserInterface* cursor = this->GetCursorGUI();
+				if (cursor) {
+
+					//SetFocus(FOCUS_GUI, 100000, nullptr, cursor);
+					//gameLocal.sessionCommand = "game_startmenu";
+					//gui->Activate(false, gameLocal.time);
+					cursor->Activate(true, gameLocal.time);  // Activate the cursor
+					cursor->Redraw(gameLocal.time);          // Redraw the cursor to ensure it shows up
+				}
+			}
+			else if (toggledShop == true) {
+				toggledShop = false;  // Close the shop menu if it's already open
+
+				idUserInterface* cursor = this->GetCursorGUI();
+				if (cursor) {
+					//SetFocus(FOCUS_CHARACTER, 0, nullptr, nullptr);
+					ClearFocus();
+					cursor->Activate(false, gameLocal.time);  // Deactivate the cursor when closing the shop
+					
+				}
+			}
+				break;
+		}
 		case IMPULSE_17: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.ToggleReady( );
@@ -9284,6 +9463,14 @@ Called every tic for each player
 */
 void idPlayer::Think( void ) {
 	renderEntity_t *headRenderEnt;
+
+	if (toggledShop) {
+		idUserInterface* cursor = this->GetCursorGUI();
+		if (cursor) {
+			cursor->Activate(true, gameLocal.time);
+			cursor->Redraw(gameLocal.time);
+		}
+	}
  
 	if ( talkingNPC ) {
 		if ( !talkingNPC.IsValid() ) {
@@ -9303,6 +9490,7 @@ void idPlayer::Think( void ) {
 	if ( !gameLocal.usercmds ) {
 		return;
 	}
+
 
 #ifdef _XENON
 	// change the crosshair if it's modified
@@ -9643,6 +9831,19 @@ void idPlayer::Think( void ) {
 		inBuyZone = false;
 
 	inBuyZonePrev = false;
+
+	//Alex Wesolowski
+/*
+if (usercmd.impulse == 16 && !toggledShop) {
+	shopMenuHandling();
+	toggledShop = true;
+	usercmdGen->StuffImpulse(27);
+	return;
+}*/
+
+	
+
+
 }
 
 /*
@@ -11174,15 +11375,27 @@ void idPlayer::Event_AllowNewObjectives ( void ) {
 	showNewObjectives = true;
 }
 
-// mekberg: added sethealth
+
 /*
+* ALEX WESOLOWSKI!
 =============
-idPlayer::Event_SetHealth
+idPlayer::Event_SetMoney
 =============
 */
-void idPlayer::Event_SetHealth( float newHealth ) {
-	health = idMath::ClampInt( 1 , inventory.maxHealth, newHealth );
+
+void idPlayer::ChangeMoney (int amount) {
+	inventory.money += amount;
+	//gameLocal.Printf("Player's changed to: %d (gained %d)\n", inventory.money, amount);
+	//if(amount < money) maybe for purchasing or I can make another function
 }
+
+void idPlayer::Event_SetMoney(int setAmount) {
+	inventory.money = setAmount;
+	//gameLocal.Printf("Player's money set to: %d\n", inventory.money);
+	//if(amount < money) maybe for purchasing or I can make another function
+}
+
+
 /*
 =============
 idPlayer::Event_SetArmor
@@ -11190,6 +11403,16 @@ idPlayer::Event_SetArmor
 */
 void idPlayer::Event_SetArmor( float newArmor ) {
 	inventory.armor = idMath::ClampInt( 0 , inventory.maxarmor, newArmor );
+}
+
+// mekberg: added sethealth
+/*
+=============
+idPlayer::Event_SetHealth
+=============
+*/
+void idPlayer::Event_SetHealth(float newHealth) {
+	health = idMath::ClampInt(1, inventory.maxHealth, newHealth);
 }
 
 /*
@@ -13359,6 +13582,7 @@ void idPlayer::GetDebugInfo ( debugInfoProc_t proc, void* userData ) {
 	proc ( "idPlayer", "inventory.armor",		va("%d", inventory.armor ), userData );
 	proc ( "idPlayer", "inventory.weapons",		va("%d", inventory.weapons ), userData );
 	proc ( "idPlayer", "inventory.powerups",	va("%d", inventory.powerups ), userData );
+	//proc("idPlayer", "inventory.money", va("%d", inventory.powerups), userData); //Alex Wesolowski
 }
 
 
